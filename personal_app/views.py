@@ -21,7 +21,7 @@ def obtenerEmpleado(request,id):
 
 
 @api_view(['GET','POST'])
-def obtenerEmpleados(request):
+def obtenerTrabajadores(request):
     if request.method == 'GET':
         personas_obtenidas = Empleado.objects.all()
         serialzado = PersonalSerializer(personas_obtenidas, many=True)
@@ -59,3 +59,14 @@ def modificarEmpleado(request, id, idEmpleado):
     if request.method == "DELETE":
         empleado.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET','POST'])
+def obtenerEmpleadosCargo(request,cargo):
+    empleados = Empleado.objects.filter(emp_cargo=cargo)
+    if not empleados.exists():
+        return Response({"detail": "No se encontraron empleados con este cargo."}, status=status.HTTP_404_NOT_FOUND)
+
+    serializado = PersonalSerializer(empleados, many=True)
+
+    return Response(serializado.data)
