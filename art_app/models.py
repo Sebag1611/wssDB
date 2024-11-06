@@ -31,9 +31,5 @@ class Art(models.Model):
 
     actividad = models.ManyToManyField(Actividad)
     empleado = models.ManyToManyField(Empleado)
-<<<<<<< HEAD
-=======
-
->>>>>>> e1c405267ee259bd2c7e7bc9506471e54e4d41ca
 
 

@@ -10,9 +10,9 @@ from personal_app.serializers import PersonalSerializer
 
 @api_view(['GET'])
 def obtenerEmpleado(request,id):
-    persona = Empleado.objects.get(id=id)
+    persona = Empleado.objects.get(emp_rut =id)
     try:
-        perfil = Empleado.objects.get(id=id)
+        perfil = Empleado.objects.get(emp_rut=id)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -36,20 +36,26 @@ def obtenerEmpleados(request):
         else:
             return Response(deserializado.errors,status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET','PATCH','DELETE'])
-def modificarEmpleado(request,id):
+
+@api_view(['GET', 'PATCH', 'DELETE'])
+def modificarEmpleado(request, id, idEmpleado):
     try:
-        persona = Empleado.objects.get(id=id)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        persona = Empleado.objects.get(emp_rut=id)
+        if persona.emp_cargo == "JefeLab":
+            empleado = Empleado.objects.get(emp_rut=idEmpleado)
+        else:
+            return Response({"detail": "No tiene permisos para modificar."}, status=status.HTTP_403_FORBIDDEN)
+
+    except Empleado.DoesNotExist:
+        return Response({"detail": "Empleado no encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'PATCH':
-        serializado = PersonalSerializer(persona,data=request.data)
+        serializado = PersonalSerializer(empleado, data=request.data)
         if serializado.is_valid():
             serializado.save()
-            return Response(serializado.data,status=status.HTTP_200_OK)
-        return Response(serializado.errors,status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializado.data, status=status.HTTP_200_OK)
+        return Response(serializado.errors, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == "DELETE":
-        persona.delete()
+        empleado.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

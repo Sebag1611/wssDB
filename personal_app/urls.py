@@ -3,6 +3,6 @@ from personal_app import views
 
 urlpatterns = [
     path('Empleados/', views.obtenerEmpleados),
-    path('Empleado/<int:id>', views.Empleado),
-    path('Empleado/modificar/<int:id>', views.modificarEmpleado),
+    path('Empleado/<int:id>', views.obtenerEmpleado),
+    path('Empleado/modificar/<int:id>/<int:idEmpleado>', views.modificarEmpleado),
 ]
