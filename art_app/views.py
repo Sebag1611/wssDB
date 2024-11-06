@@ -1,72 +1,24 @@
 from django.shortcuts import render
-from personal_app.models import Empleado
-from art_app.models import *
-from personal_app.serializers import *
-from art_app.serializers import *
-from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
-# Create your views here.
-# Obtener y añadir Art a la base de datos
-@api_view(['GET', 'POST'])
-def obtenerArts(request):
-    if request.method == 'GET':
-        art_obtenida = Art.objects.all()
-        #serializar los resultados
-        serializado = ArtSerializer(art_obtenida, many=True)
-        return Response(serializado.data, status=status.HTTP_200_OK)
-
-    if request.method == 'POST':
-        deserializado = ArtSerializer(data=request.data)
-        # Valida q el JSON recibido es correcto segun la bd
-        if deserializado.is_valid():
-            # Graba el resultado en la bd
-            deserializado.save()
-            return Response(deserializado.data, status=status.HTTP_200_OK)
-        else:
-            # En caso de errores, devuelve los errores
-            return Response(deserializado.errors, status=status.HTTP_400_BAD_REQUEST)
-
-def obtenerRiesgoCriticos(request):
-    if request.method == 'GET':
-        rc_obtenido = RiesgoCritico.objects.all()
-        serializado = RiesgoCriticoSerializer(rc_obtenido, many=True)
-        return Response(serializado.data, status=status.HTTP_200_OK)
-
-    if request.method == 'POST':
-        deserializado = RiesgoCriticoSerializer(data=request.data)
-        if deserializado.is_valid():
-            deserializado.save()
-            return Response(deserializado.data, status=status.HTTP_200_OK)
-
-
-@api_view(['PATCH', 'DELETE'])
-def modificarArt(request, id):
-    try:
-        art = Art.objects.get(id=id)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'PATCH':
-        serializer = ArtSerializer(art, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    if request.method == 'DELETE':
-        art.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+from rest_framework.response import Response
+from art_app.models import Art
+from art_app.serializers import ARTSerializer
 
 @api_view(['GET'])
-def obtenerArt(request, id):
-    try:
-        art = Art.objects.get(id=id)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+def obtener_ARTS(request):
+    # Utilizamos prefetch_related para las relaciones Many-to-Many
+    resultados = Art.objects.prefetch_related('empleado', 'actividad').all()
 
-    if request.method == 'GET':
-        serializer = ArtSerializer(art)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    datos = []
+    for resultado in resultados:
+        datos.append({
+            'art_id': resultado.art_id,
+            'trabajo_simultaneo': resultado.art_trab_simultaneo,
+            'estado_trab': resultado.art_estado_trab,
+            'hora_inicio': resultado.art_hora_inicio,
+            'hora_fin': resultado.art_hora_fin,
+            'empleados': [{'rut': empleado.emp_rut, 'nombre': empleado.emp_nombre} for empleado in resultado.empleado.all()],
+            'actividades': [{'nombre': actividad.act_nombre, 'riesgo': actividad.act_riesgo, 'medida_control': actividad.act_medida_control} for actividad in resultado.actividad.all()],
+        })
+
+    return Response(datos)

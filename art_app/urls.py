@@ -1,9 +1,6 @@
 from django.urls import path
-from art_app.views import *
+from art_app import views
 
 urlpatterns = [
-    path('Art/', obtenerArts),
-    path('Art/modificar/<int:id>/', modificarArt),
-    path('Art/<int:id>/', obtenerArt),
-    path('RiesgoCritico/', obtenerRiesgoCriticos),
+    path('ARTS/', views.obtener_ARTS),
 ]
