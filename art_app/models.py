@@ -33,4 +33,3 @@ class Art(models.Model):
     empleado = models.ManyToManyField(Empleado)
 
 
-
