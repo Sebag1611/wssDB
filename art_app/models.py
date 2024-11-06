@@ -30,10 +30,7 @@ class Art(models.Model):
     art_hora_fin = models.TimeField()
 
     actividad = models.ManyToManyField(Actividad)
-    empleado = models.ManyToManyField(Empleado, through='ArtEmpleado')
+    empleado = models.ManyToManyField(Empleado)
 
-class ArtEmpleado(models.Model):
-    art_id = models.ForeignKey('Art', on_delete=models.CASCADE)
-    empleado_id = models.ForeignKey(Empleado, on_delete=models.CASCADE)
-    fecha_asignacion = models.DateField(null=True, blank=True)
+
 
