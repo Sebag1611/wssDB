@@ -31,5 +31,6 @@ class Art(models.Model):
 
     actividad = models.ManyToManyField(Actividad)
     empleado = models.ManyToManyField(Empleado)
+    pregunta = models.ManyToManyField(Pregunta)
 
 

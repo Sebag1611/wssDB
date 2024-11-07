@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from art_app.models import Art
-from art_app.serializers import ARTSerializer
+from rest_framework.views import status
+from art_app.models import *
+from art_app.serializers import *
+
 
 @api_view(['GET'])
-def obtener_ARTS(request):
+def ArtRealizada(request):
     # Utilizamos prefetch_related para las relaciones Many-to-Many
-    resultados = Art.objects.prefetch_related('empleado', 'actividad').all()
+    resultados = Art.objects.prefetch_related('empleado', 'actividad', 'pregunta').all()
 
     datos = []
     for resultado in resultados:
@@ -22,3 +24,97 @@ def obtener_ARTS(request):
         })
 
     return Response(datos)
+
+@api_view(['GET', 'POST'])
+def obtenerRiesgoCritico(request):
+    if request.method == 'GET':
+        riesgoCrit_obt = RiesgoCritico.objects.all()
+        serializado = RiesgoCriticoSerializer(riesgoCrit_obt, many=True)
+        return Response(serializado.data)
+
+    if request.method == 'POST':
+        deserializado = RiesgoCriticoSerializer(data=request.data)
+        if deserializado.is_valid():
+            deserializado.save()
+            return Response(deserializado.data)
+
+@api_view(['DELETE', 'PATCH'])
+def modificarRiesgoCritico(request, pk):
+    try:
+        riesgoCritico = RiesgoCritico.objects.get(pk=pk)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        serializado = RiesgoCriticoSerializer(riesgoCritico, data=request.data)
+        if serializado.is_valid():
+            serializado.save()
+            return Response(serializado.data)
+
+    if request.method == 'DELETE':
+        riesgoCritico.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'POST'])
+def obtenerActividad(request):
+    if request.method == 'GET':
+        act_obtener = Actividad.objects.all()
+        serializer = ActividadSerializer(act_obtener, many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        deserializado = ActividadSerializer(data=request.data)
+        if deserializado.is_valid():
+            deserializado.save()
+            return Response(deserializado.data)
+
+
+@api_view(['DELETE', 'PATCH'])
+def modificarActividad(request, pk):
+    try:
+        actividad = Actividad.objects.get(pk=pk)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        serializado = RiesgoCriticoSerializer(actividad, data=request.data)
+        if serializado.is_valid():
+            serializado.save()
+            return Response(serializado.data)
+
+    if request.method == 'DELETE':
+        actividad.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'POST'])
+def obtenerArt(request):
+    if request.method == 'GET':
+        art_obtener = Art.objects.all()
+        serializer = ARTSerializer(art_obtener, many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        serializer = ARTSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE', 'PATCH'])
+def modificarArt(request, pk):
+    try:
+        art = Art.objects.get(pk=pk)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        serializado = RiesgoCriticoSerializer(art, data=request.data)
+        if serializado.is_valid():
+            serializado.save()
+            return Response(serializado.data)
+
+    if request.method == 'DELETE':
+        art.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
