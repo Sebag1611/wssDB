@@ -28,6 +28,7 @@ class Art(models.Model):
     art_estado_trab = models.BooleanField(default=False)
     art_hora_inicio = models.TimeField()
     art_hora_fin = models.TimeField()
+    art_fecha = models.DateField()
 
     actividad = models.ManyToManyField(Actividad)
     empleado = models.ManyToManyField(Empleado)

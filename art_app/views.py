@@ -39,9 +39,9 @@ def obtenerRiesgoCritico(request):
             return Response(deserializado.data)
 
 @api_view(['DELETE', 'PATCH'])
-def modificarRiesgoCritico(request, pk):
+def modificarRiesgoCritico(request, id):
     try:
-        riesgoCritico = RiesgoCritico.objects.get(pk=pk)
+        riesgoCritico = RiesgoCritico.objects.get(id=id)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -67,6 +67,8 @@ def obtenerActividad(request):
         if deserializado.is_valid():
             deserializado.save()
             return Response(deserializado.data)
+
+        return Response(deserializado.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['DELETE', 'PATCH'])
@@ -118,3 +120,44 @@ def modificarArt(request, pk):
     if request.method == 'DELETE':
         art.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def obtenerArtPorFecha(request, fecha):
+    if not fecha:
+        return Response({'error': 'Por favor, proporciona una fecha.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Filtra los objetos Art por la fecha proporcionada
+        art_obtener = Art.objects.filter(art_fecha=fecha)
+
+        if not art_obtener.exists():
+            return Response({'message': 'No se encontraron registros para la fecha proporcionada.'},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        # Utiliza el serializador adecuado para Art
+        serializer = ARTSerializer(art_obtener, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except ValueError:
+        return Response({'error': 'Formato de fecha inválido. Usa el formato AAAA-MM-DD.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def obtenerArtPorRut(request, rut):
+    if not rut:
+        return Response({'error': 'Por favor, proporciona un RUT.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Filtra los objetos Art por el RUT del empleado
+        art_obtener = Art.objects.filter(empleado__emp_rut=rut)
+
+        if not art_obtener.exists():
+            return Response({'message': 'No se encontraron registros para el RUT proporcionado.'},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        # Utiliza el serializador adecuado para Art
+        serializer = ARTSerializer(art_obtener, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except ValueError:
+        return Response({'error': 'Formato de RUT inválido.'}, status=status.HTTP_400_BAD_REQUEST)
