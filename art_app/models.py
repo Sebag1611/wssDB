@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Model
+
 from personal_app.models import Empleado
 
 # Create your models here.
@@ -30,8 +32,14 @@ class Art(models.Model):
     art_hora_fin = models.TimeField()
     art_fecha = models.DateField()
 
+    pregunta = models.ManyToManyField(Pregunta, through='ArtPregunta')
     actividad = models.ManyToManyField(Actividad)
     empleado = models.ManyToManyField(Empleado)
-    pregunta = models.ManyToManyField(Pregunta)
+
+
+class ArtPregunta(models.Model):
+    id_art = models.ForeignKey(Art, on_delete=models.CASCADE)
+    id_pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE)
+    respuesta = models.BooleanField()
 
 

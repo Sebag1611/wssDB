@@ -10,4 +10,5 @@ urlpatterns = [
     path('ART/ObtenerFecha/<str:fecha>', obtenerArtPorFecha),
     path('ART/ObtenerRut/<str:rut>', obtenerArtPorRut),
     path('ArtRealizadas/', ArtRealizada),
+    path('Art/Actividad/<int:id>/', obtenerArtActividad),
 ]

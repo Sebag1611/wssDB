@@ -1,3 +1,5 @@
+from idlelib.autocomplete import TRY_A
+
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -161,3 +163,21 @@ def obtenerArtPorRut(request, rut):
 
     except ValueError:
         return Response({'error': 'Formato de RUT inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def obtenerArtActividad(request, activiudad):
+    if not activiudad:
+        return Response({'message': 'Porfavor proporcione la actividad que desea buscar.'}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        actividad_obt = Actividad.objects.filter(actividad__act_id=activiudad)
+
+        if not actividad_obt.exists():
+            return Response({'message': 'No se encontraron registros para la Actividad proporcionado.'},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ActividadSerializer(actividad_obt, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except ValueError:
+        return Response({'error': 'Formato de Actividad inválido.'}, status=status.HTTP_400_BAD_REQUEST)
